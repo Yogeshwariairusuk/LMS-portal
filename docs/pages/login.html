@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LMS Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f2f5;
+    }
+    .container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    a {
+      display: block;
+      margin-top: 15px;
+      color: #6c5ce7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="title">Login</h2>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button id="loginBtn">Login</button>
+  <a id="signupLink" href="#">Don't have an account? Create one</a>
+  <p id="error" style="color:red;"></p>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const role = urlParams.get('role') || 'student';
+
+  // Update title dynamically
+  document.getElementById('title').textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Login`;
+
+  // Update signup link
+  document.getElementById('signupLink').href = `signup.html?role=${role}`;
+
+  const loginBtn = document.getElementById('loginBtn');
+  const error = document.getElementById('error');
+
+  loginBtn.addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('name', data.name);
+
+        if (role === 'student') {
+          window.location.href = 'pages/dashboards/student-dashboard.html';
+        } else {
+          window.location.href = 'pages/dashboards/trainer-dashboard.html';
+        }
+      } else {
+        error.textContent = data.error || 'Login failed';
+      }
+    } catch (err) {
+      error.textContent = 'Server not responding.';
+    }
+  });
+</script>
+
+</body>
+</html>

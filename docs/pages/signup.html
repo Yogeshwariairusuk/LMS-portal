@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LMS Sign Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f2f5;
+    }
+    .container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    a {
+      display: block;
+      margin-top: 15px;
+      color: #6c5ce7;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="title">Sign Up</h2>
+  <input type="text" id="name" placeholder="Full Name" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="password" id="password" placeholder="Password" required>
+  <button id="signupBtn">Sign Up</button>
+  <a id="loginLink" href="#">Already have an account? Login</a>
+  <p id="error" style="color:red;"></p>
+</div>
+
+<script>
+  // Get role from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const role = urlParams.get('role') || 'student'; // default to student
+
+  // Update title
+  document.getElementById('title').textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Sign Up`;
+
+  // Update login link
+  document.getElementById('loginLink').href = `login.html?role=${role}`;
+
+  const signupBtn = document.getElementById('signupBtn');
+  const error = document.getElementById('error');
+
+  signupBtn.addEventListener('click', async () => {
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await fetch('http://127.0.0.1:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        window.location.href = `login.html?role=${role}`;
+      } else {
+        error.textContent = data.error || 'Signup failed';
+      }
+    } catch (err) {
+      error.textContent = 'Server not responding.';
+    }
+  });
+</script>
+
+</body>
+</html>
